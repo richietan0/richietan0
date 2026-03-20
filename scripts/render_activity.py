@@ -1,0 +1,272 @@
+import html
+from collections import defaultdict
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from utils import safe_href, visual_len, visual_pad
+
+LINE_WIDTH = 72
+
+
+_DEFAULT_TZ = ZoneInfo("America/New_York")
+
+
+def render_activity(contributions_collection, tz=None):
+    """Render the contribution activity timeline. Returns list of text lines."""
+    if tz is None:
+        tz = _DEFAULT_TZ
+    # --- Gather per-month data ---
+    # commits_by_month: {(year, month): {nameWithOwner: {"url":..., "count":...}}}
+    private_by_month = defaultdict(lambda: {"count": 0, "min_date": None, "max_date": None})
+
+    commits_by_month = defaultdict(lambda: defaultdict(lambda: {"url": "", "count": 0}))
+    for entry in contributions_collection.get("commitContributionsByRepository", []):
+        if entry is None:
+            continue
+        repo = entry.get("repository") or {}
+        if repo.get("isPrivate", False):
+            for node in entry.get("contributions", {}).get("nodes", []):
+                if node is None:
+                    continue
+                dt = _parse_date(node.get("occurredAt", ""), tz)
+                if dt is None:
+                    continue
+                key = (dt.year, dt.month)
+                _track_private(private_by_month, key, node.get("commitCount", 0), dt)
+            continue
+        name = repo.get("nameWithOwner", "")
+        url = repo.get("url", "")
+        for node in entry.get("contributions", {}).get("nodes", []):
+            if node is None:
+                continue
+            dt = _parse_date(node.get("occurredAt", ""), tz)
+            if dt is None:
+                continue
+            key = (dt.year, dt.month)
+            commits_by_month[key][name]["url"] = url
+            commits_by_month[key][name]["count"] += node.get("commitCount", 0)
+
+    # prs_by_month: {(year, month): {nameWithOwner: {"url":..., "count":...}}}
+    prs_by_month = defaultdict(lambda: defaultdict(lambda: {"url": "", "count": 0}))
+    for entry in contributions_collection.get("pullRequestContributionsByRepository", []):
+        if entry is None:
+            continue
+        repo = entry.get("repository") or {}
+        if repo.get("isPrivate", False):
+            for node in entry.get("contributions", {}).get("nodes", []):
+                if node is None:
+                    continue
+                dt = _parse_date(node.get("occurredAt", ""), tz)
+                if dt is None:
+                    continue
+                key = (dt.year, dt.month)
+                _track_private(private_by_month, key, 1, dt)
+            continue
+        name = repo.get("nameWithOwner", "")
+        url = repo.get("url", "")
+        for node in entry.get("contributions", {}).get("nodes", []):
+            if node is None:
+                continue
+            dt = _parse_date(node.get("occurredAt", ""), tz)
+            if dt is None:
+                continue
+            key = (dt.year, dt.month)
+            prs_by_month[key][name]["url"] = url
+            prs_by_month[key][name]["count"] += 1
+
+    # reviews_by_month: {(year, month): {nameWithOwner: {"url":..., "count":...}}}
+    reviews_by_month = defaultdict(lambda: defaultdict(lambda: {"url": "", "count": 0}))
+    for entry in contributions_collection.get("pullRequestReviewContributionsByRepository", []):
+        if entry is None:
+            continue
+        repo = entry.get("repository") or {}
+        if repo.get("isPrivate", False):
+            for node in entry.get("contributions", {}).get("nodes", []):
+                if node is None:
+                    continue
+                dt = _parse_date(node.get("occurredAt", ""), tz)
+                if dt is None:
+                    continue
+                key = (dt.year, dt.month)
+                _track_private(private_by_month, key, 1, dt)
+            continue
+        name = repo.get("nameWithOwner", "")
+        url = repo.get("url", "")
+        for node in entry.get("contributions", {}).get("nodes", []):
+            if node is None:
+                continue
+            dt = _parse_date(node.get("occurredAt", ""), tz)
+            if dt is None:
+                continue
+            key = (dt.year, dt.month)
+            reviews_by_month[key][name]["url"] = url
+            reviews_by_month[key][name]["count"] += 1
+
+    # repos_by_month: {(year, month): [{"name":..., "nameWithOwner":..., "url":...}]}
+    repos_by_month = defaultdict(list)
+    for node in contributions_collection.get("repositoryContributions", {}).get("nodes", []):
+        if node is None:
+            continue
+        repo = node.get("repository") or {}
+        if repo.get("isPrivate", False):
+            dt = _parse_date(node.get("occurredAt", ""), tz)
+            if dt is not None:
+                key = (dt.year, dt.month)
+                _track_private(private_by_month, key, 1, dt)
+            continue
+        dt = _parse_date(node.get("occurredAt", ""), tz)
+        if dt is None:
+            continue
+        key = (dt.year, dt.month)
+        repos_by_month[key].append({
+            "name": repo.get("name", ""),
+            "nameWithOwner": repo.get("nameWithOwner", ""),
+            "url": repo.get("url", ""),
+            "date": dt,
+        })
+
+    # --- Collect all months and sort descending ---
+    all_months = set()
+    all_months.update(commits_by_month.keys())
+    all_months.update(prs_by_month.keys())
+    all_months.update(reviews_by_month.keys())
+    all_months.update(repos_by_month.keys())
+    all_months.update(private_by_month.keys())
+    sorted_months = sorted(all_months, reverse=True)[:3]
+
+    # --- Render ---
+    lines = []
+    lines.append("<b>Contribution Activity</b>")
+    lines.append("")
+
+    for year, month in sorted_months:
+        month_name = datetime(year, month, 1).strftime("%B")
+        header = f"<b>{month_name}</b> {year} "
+        header_visual = visual_len(header)
+        lines.append(header + "─" * (LINE_WIDTH - header_visual))
+        lines.append("")
+
+        # Commits
+        month_commits = commits_by_month.get((year, month), {})
+        if month_commits:
+            sorted_repos = sorted(month_commits.items(), key=lambda x: x[1]["count"], reverse=True)
+            total_commits = sum(r["count"] for _, r in sorted_repos)
+            repo_word = "repository" if len(sorted_repos) == 1 else "repositories"
+            commit_word = "commit" if total_commits == 1 else "commits"
+            lines.append(f"  Created {total_commits} {commit_word} in {len(sorted_repos)} {repo_word}")
+            lines.extend(_render_repo_lines(sorted_repos, show_count=True))
+            lines.append("")
+
+        # PRs
+        month_prs = prs_by_month.get((year, month), {})
+        if month_prs:
+            sorted_repos = sorted(month_prs.items(), key=lambda x: x[1]["count"], reverse=True)
+            total_prs = sum(r["count"] for _, r in sorted_repos)
+            repo_word = "repository" if len(sorted_repos) == 1 else "repositories"
+            pr_word = "pull request" if total_prs == 1 else "pull requests"
+            lines.append(f"  Opened {total_prs} {pr_word} in {len(sorted_repos)} {repo_word}")
+            lines.extend(_render_repo_lines(sorted_repos, show_count=True))
+            lines.append("")
+
+        # Reviews
+        month_reviews = reviews_by_month.get((year, month), {})
+        if month_reviews:
+            sorted_repos = sorted(month_reviews.items(), key=lambda x: x[1]["count"], reverse=True)
+            total_reviews = sum(r["count"] for _, r in sorted_repos)
+            repo_word = "repository" if len(sorted_repos) == 1 else "repositories"
+            pr_word = "pull request" if total_reviews == 1 else "pull requests"
+            lines.append(f"  Reviewed {total_reviews} {pr_word} in {len(sorted_repos)} {repo_word}")
+            lines.extend(_render_repo_lines(sorted_repos, show_count=True))
+            lines.append("")
+
+        # Repos created
+        month_repos = repos_by_month.get((year, month), [])
+        if month_repos:
+            repo_word = "repository" if len(month_repos) == 1 else "repositories"
+            lines.append(f"  Created {len(month_repos)} {repo_word}")
+            for i, repo in enumerate(month_repos):
+                is_last = (i == len(month_repos) - 1)
+                branch = "└─ " if is_last else "├─ "
+                escaped_name = html.escape(repo["nameWithOwner"])
+                link = f'<a href="{safe_href(repo["url"])}">{escaped_name}</a>'
+                date_str = repo["date"].strftime("%b %d").replace(" 0", " ")
+                prefix = f"  {branch}{link} "
+                prefix_visual = visual_len(prefix)
+                date_visual = visual_len(date_str)
+                dots_needed = LINE_WIDTH - prefix_visual - 1 - date_visual
+                if dots_needed < 2:
+                    dots_needed = 2
+                dots = "·" * dots_needed
+                lines.append(f"  {branch}{link} {dots} {date_str}")
+            lines.append("")
+
+        # Private contributions summary
+        private_data = private_by_month.get((year, month))
+        if private_data and private_data["count"] > 0:
+            count = private_data["count"]
+            noun = "contribution" if count == 1 else "contributions"
+            min_d = private_data["min_date"]
+            max_d = private_data["max_date"]
+            fmt = lambda d: d.strftime("%b %d").replace(" 0", " ")
+            date_str = fmt(min_d) if min_d.date() == max_d.date() else f"{fmt(min_d)} – {fmt(max_d)}"
+            label = f"  {count} {noun} in private repositories "
+            label_visual = visual_len(label)
+            date_visual = visual_len(date_str)
+            dots_needed = LINE_WIDTH - label_visual - 1 - date_visual
+            if dots_needed < 2:
+                dots_needed = 2
+            lines.append(f"{label}{'·' * dots_needed} {date_str}")
+            lines.append("")
+
+    return lines
+
+
+def _track_private(private_by_month, key, count, dt):
+    """Track a private contribution for the given month key."""
+    entry = private_by_month[key]
+    entry["count"] += count
+    if entry["min_date"] is None or dt < entry["min_date"]:
+        entry["min_date"] = dt
+    if entry["max_date"] is None or dt > entry["max_date"]:
+        entry["max_date"] = dt
+
+
+def _parse_date(date_str, tz):
+    """Parse an ISO 8601 date string into a datetime in the given tz, or None."""
+    if not date_str:
+        return None
+    try:
+        dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+        return dt.astimezone(tz)
+    except (ValueError, AttributeError):
+        return None
+
+
+def _render_repo_lines(sorted_repos, show_count=True):
+    """Render tree-style repo lines with dot-leader alignment.
+
+    sorted_repos: list of (nameWithOwner, {"url": ..., "count": ...})
+    Returns list of strings.
+    """
+    lines = []
+    for i, (name, info) in enumerate(sorted_repos):
+        is_last = (i == len(sorted_repos) - 1)
+        branch = "└─ " if is_last else "├─ "
+        escaped_name = html.escape(name)
+        link = f'<a href="{safe_href(info["url"])}">{escaped_name}</a>'
+
+        if show_count:
+            count_str = f" {info['count']}"
+            prefix = f"  {branch}{link} "
+            # Visual width of the prefix (indent + branch + link text + space)
+            prefix_visual = visual_len(prefix)
+            count_visual = visual_len(count_str)
+            dots_needed = LINE_WIDTH - prefix_visual - count_visual
+            if dots_needed < 2:
+                dots_needed = 2
+            dots = "·" * dots_needed
+            lines.append(f"  {branch}{link} {dots}{count_str}")
+        else:
+            lines.append(f"  {branch}{link}")
+
+    return lines
