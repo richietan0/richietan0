@@ -1,39 +1,25 @@
 <!-- PROFILE START -->
-<!-- hash:685dc354e658f404 -->
-<pre>┌─────────────────────────────────────┐  ┌─────────────────────────────────────┐
-│ <a href="https://github.com/PurdueRCAC/OOD-Dashboard"><b>PurdueRCAC/OOD-Dashboard</b></a>            │  │ <a href="https://github.com/richtan/ouro"><b>ouro</b></a>                                │
-│ An improved Open OnDemand dashboard │  │ Pay for compute over HTTP. No       │
-│ for HPC clusters                    │  │ accounts. Just USDC.                │
-│                                     │  │                                     │
-│ JavaScript                ★ 12  ⑂ 1 │  │ Python                              │
-└─────────────────────────────────────┘  └─────────────────────────────────────┘
-┌─────────────────────────────────────┐  ┌─────────────────────────────────────┐
-│ <a href="https://github.com/richtan/pdfnotes"><b>pdfnotes</b></a>                            │  │ <a href="https://github.com/richtan/relayer"><b>relayer</b></a>                             │
-│ Analyze your PDFs with AI built-in  │  │ The physical layer for AI agents    │
-│                                     │  │                                     │
-│                                     │  │                                     │
-│ TypeScript                          │  │ Solidity                            │
-└─────────────────────────────────────┘  └─────────────────────────────────────┘
-┌─────────────────────────────────────┐  ┌─────────────────────────────────────┐
-│ <a href="https://github.com/richtan/handsoff"><b>handsoff</b></a>                            │  │ <a href="https://github.com/richtan/richtan"><b>richtan</b></a>                             │
-│ Improve your productivity through   │  │ My automated text-based GitHub      │
-│ hands-free laptop control           │  │ profile README                      │
-│                                     │  │                                     │
-│ Python                              │  │ Python                              │
-└─────────────────────────────────────┘  └─────────────────────────────────────┘
+<!-- hash:0e56038c4274e88e -->
+<pre>┌─────────────────────────────────────┐
+│ <a href="https://github.com/richietan0/richietan0"><b>richietan0</b></a>                          │
+│                                     │
+│                                     │
+│                                     │
+│ Python                              │
+└─────────────────────────────────────┘
 
 
-<b>957 contributions in the last year</b>
+<b>3 contributions in the last year</b>
 
 ┌────────────────────────────────────────────────────────────┐
 │        Apr May  Jun Jul Aug  Sep Oct Nov  Dec Jan  Feb Mar │
-│       ··░▒░·▒▒░··░░░·░·····░·░·····░·░░·░░░····░░░░░···▒▒· │
-│ Mon   ░········░░░░···░░·░···░·····░·····░░·····░·░·░·░░·▒ │
-│       ░······░···░··░░░▒··░············░░░···░····░░·░·░·▒ │
-│ Wed  ·░····▒·░░··░░░░▒··░░·····░···░·░·········░░···░░·░·░ │
-│      ·····░··░·░··░░·░░·░·········░···░····░···░░·░░·░░░░█ │
-│ Fri  ▓····▒··░░··░░···░·····░·····░░···░··░······░·░░··▒·█ │
-│      ········░·░·░▒▓░··░··░···░░░░·········░·░░··░·░░░▒▒░  │
+│       ···················································· │
+│ Mon   ···················································· │
+│       ···················································· │
+│ Wed   ···················································· │
+│      ····················································▒ │
+│ Fri  ····················································█ │
+│      ····················································· │
 │                                                            │
 │        Less · ░ ▒ ▓ █ More                                 │
 └────────────────────────────────────────────────────────────┘
@@ -42,45 +28,14 @@
 
 <b>March</b> 2026 ─────────────────────────────────────────────────────────────
 
-  Created 224 commits in 6 repositories
-  ├─ <a href="https://github.com/richtan/ouro">richtan/ouro</a> ·················································· 140
-  ├─ <a href="https://github.com/richtan/richtan">richtan/richtan</a> ················································ 51
-  ├─ <a href="https://github.com/richtan/mpprouter">richtan/mpprouter</a> ·············································· 16
-  ├─ <a href="https://github.com/richtan/pdfnotes">richtan/pdfnotes</a> ················································ 8
-  ├─ <a href="https://github.com/richtan/relayer">richtan/relayer</a> ················································· 5
-  └─ <a href="https://github.com/richtan/paypertoken">richtan/paypertoken</a> ············································· 4
+  Created 1 commit in 1 repository
+  └─ <a href="https://github.com/richietan0/richietan0">richietan0/richietan0</a> ··········································· 1
 
-  Created 3 repositories
-  ├─ <a href="https://github.com/richtan/paypertoken">richtan/paypertoken</a> ········································ Mar 19
-  ├─ <a href="https://github.com/richtan/mpprouter">richtan/mpprouter</a> ·········································· Mar 19
-  └─ <a href="https://github.com/richtan/richtan">richtan/richtan</a> ············································ Mar 17
-
-  11 contributions in private repositories ·············· Mar 2 – Mar 14
-
-<b>February</b> 2026 ──────────────────────────────────────────────────────────
-
-  Created 26 commits in 3 repositories
-  ├─ <a href="https://github.com/richtan/ouro">richtan/ouro</a> ··················································· 13
-  ├─ <a href="https://github.com/richtan/relayer">richtan/relayer</a> ················································ 10
-  └─ <a href="https://github.com/richtan/pdfnotes">richtan/pdfnotes</a> ················································ 3
-
-  Created 3 repositories
-  ├─ <a href="https://github.com/richtan/ouro">richtan/ouro</a> ··············································· Feb 28
-  ├─ <a href="https://github.com/richtan/relayer">richtan/relayer</a> ············································ Feb 17
-  └─ <a href="https://github.com/richtan/pdfnotes">richtan/pdfnotes</a> ············································ Feb 9
-
-  26 contributions in private repositories ·············· Feb 1 – Feb 26
-
-<b>January</b> 2026 ───────────────────────────────────────────────────────────
-
-  Created 6 commits in 2 repositories
-  ├─ <a href="https://github.com/PurdueRCAC/OOD-Dashboard">PurdueRCAC/OOD-Dashboard</a> ········································ 5
-  └─ <a href="https://github.com/richtan/pdfnotes">richtan/pdfnotes</a> ················································ 1
-
-  40 contributions in private repositories ·············· Jan 3 – Jan 29
+  Created 1 repository
+  └─ <a href="https://github.com/richietan0/richietan0">richietan0/richietan0</a> ······································ Mar 20
 
 
-<b>Last updated: 2026-03-20 19:49 EDT</b>
-<b>Powered by <a href="https://github.com/richtan/richtan">richtan/richtan</a></b>
+<b>Last updated: 2026-03-20 20:02 EDT</b>
+<b>Powered by <a href="https://github.com/richietan0/richietan0">richietan0/richietan0</a></b>
 </pre>
 <!-- PROFILE END -->
